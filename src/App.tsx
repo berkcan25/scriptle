@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Trophy, ArrowLeft, RefreshCw, CheckCircle, XCircle, Play, Shuffle, BookOpen, GraduationCap, Feather, Eye } from 'lucide-react';
+import { Trophy, ArrowLeft, RefreshCw, CheckCircle, XCircle, Play, Shuffle, BookOpen, GraduationCap, Feather, Eye, Search } from 'lucide-react';
 import { SCRIPTS } from './scripts';
 import './App.css'
 
@@ -77,6 +77,7 @@ export default function ScriptSprint() {
   const [randomFeedback, setRandomFeedback] = useState<'none' | 'correct' | 'wrong' | 'gameover'>('none');
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // --- Effects & Timers ---
 
@@ -233,7 +234,12 @@ export default function ScriptSprint() {
 
   // --- Views ---
 
-  const renderMenu = () => (
+  const renderMenu = () => {
+    const filteredScripts = SCRIPTS.filter(script => 
+      script.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      script.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return (
     <div className="max-w-4xl mx-auto p-8 font-serif">
       <div className="text-center mb-16 border-b-2 border-stone-800 pb-8 relative">
         <GraduationCap className="mx-auto text-stone-800 mb-4" size={48} />
@@ -245,9 +251,23 @@ export default function ScriptSprint() {
         </div>
       </div>
 
+       <div className="max-w-md mx-auto mb-12 relative">
+        <div className="relative">
+          <input 
+            type="text" 
+            placeholder="Search for a script..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#fdfbf7] border-2 border-stone-300 rounded-full py-3 pl-12 pr-4 text-stone-800 font-bold outline-none focus:border-stone-800 transition-colors placeholder:text-stone-400 placeholder:font-normal placeholder:italic"
+          />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
+        </div>
+      </div>
+
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Chaos Mode Card */}
-        <button 
+        {searchQuery === '' &&(<button 
           onClick={startRandomMode}
           className="cursor-pointer group relative rounded-sm border-2 border-stone-800 bg-stone-800 p-8 text-left shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl overflow-hidden"
         >
@@ -262,14 +282,14 @@ export default function ScriptSprint() {
               Begin Assessment <Play size={14} fill="currentColor" />
             </div>
           </div>
-        </button>
+        </button>)}
 
         {/* Script Cards */}
-        {SCRIPTS.map(script => (
+        {filteredScripts.map(script => (
           <button
             key={script.id}
             onClick={() => startQuiz(script)}
-            className={`card-hover cursor-pointer group bg-[#fdfbf7] border border-stone-300 rounded-sm p-6 text-left shadow-sm hover:shadow-md transition-all relative overflow-hidden`}
+            className={`group bg-[#fdfbf7] border border-stone-300 rounded-sm p-6 text-left shadow-sm transition-all relative overflow-hidden card-hover`}
           >
             {/* Binder holes visual */}
             <div className="absolute left-0 top-0 bottom-0 w-8 border-r border-stone-200 bg-stone-100 flex flex-col justify-evenly items-center">
@@ -295,9 +315,16 @@ export default function ScriptSprint() {
             </div>
           </button>
         ))}
+
+        {filteredScripts.length === 0 && searchQuery !== '' && (
+            <div className="col-span-1 md:col-span-2 text-center py-12 text-stone-500 italic">
+                No scripts found matching "{searchQuery}"
+            </div>
+        )}
       </div>
     </div>
   );
+  };
 
   const renderQuiz = () => {
     if (!activeScript) return null;
