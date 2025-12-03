@@ -79,6 +79,15 @@ export default function ScriptSprint() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [strictMode, setStrictMode] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [completedScripts, setCompletedScripts] = useState<string[]>(() => {
+    const saved = localStorage.getItem('scriptSprintCompleted');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+    useEffect(() => {
+      localStorage.setItem('scriptSprintCompleted', JSON.stringify(completedScripts));
+    }, [completedScripts]);
 
   // --- Effects & Timers ---
 
@@ -168,11 +177,14 @@ export default function ScriptSprint() {
       setCurrentIndex(nextIndex);
       
       // Check win condition
-      if (nextIndex >= activeScript.items.length) {
+    if (nextIndex >= activeScript.items.length) {
         setQuizFinished(true);
         setQuizActive(false);
         setShowQuizModal(true);
-      }
+        if (!completedScripts.includes(activeScript.id)) {
+            setCompletedScripts(prev => [...prev, activeScript.id]);
+        }
+    }
     }
   };
 
@@ -264,10 +276,15 @@ export default function ScriptSprint() {
   // --- Views ---
 
   const renderMenu = () => {
-    const filteredScripts = SCRIPTS.filter(script => 
+    let filteredScripts = SCRIPTS.filter(script => 
       script.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       script.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    if (showCompleted) {
+      filteredScripts = filteredScripts.filter(script => 
+      completedScripts.includes(script.id)
+    );
+    }
     return (
     <div className="max-w-4xl mx-auto p-8 font-serif">
       <div className="text-center mb-16 border-b-2 border-stone-800 pb-8 relative">
@@ -299,6 +316,13 @@ export default function ScriptSprint() {
             {strictMode ? <CheckCircle size={18} /> : <XCircle size={18} />}
             Strict Mode: {strictMode ? 'ON' : 'OFF'}
         </button>
+
+        {completedScripts.length > 0 && (<button 
+            onClick={() => setShowCompleted(!showCompleted)}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm uppercase tracking-widest transition-all ${showCompleted ? 'bg-stone-800 text-white shadow-lg ' : 'bg-stone-200 text-stone-500 hover:bg-stone-300'}`}
+        >
+          Mastered
+        </button>)}
       </div>
 
 
@@ -338,6 +362,11 @@ export default function ScriptSprint() {
             <div className="pl-8">
                 <div className="flex justify-between items-start mb-2">
                 <h3 className={`text-2xl font-bold text-stone-900 group-hover:underline ${script.color.replace("bg","decoration")} underline-offset-4 decoration-2`}>{script.title}</h3>
+                {completedScripts.includes(script.id) && (
+                    <div className="absolute top-0 right-0 bg-stone-800 text-stone-50 text-[10px] font-bold px-2 py-1 uppercase tracking-widest z-10">
+                        Mastered
+                    </div>
+                )}
                 </div>
                 <div className={`h-1 w-12 ${script.color} mb-3`}></div>
                 <p className="text-stone-600 text-sm mb-6 font-serif italic">{script.description}</p>
