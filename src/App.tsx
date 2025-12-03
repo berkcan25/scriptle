@@ -332,81 +332,94 @@ export default function ScriptSprint() {
     const isPerfect = currentIndex === total;
 
     return (
-      <div className="max-w-5xl mx-auto p-4 md:p-8 min-h-screen flex flex-col font-serif">
-        {/* Header - Paper Style */}
-        <div className="bg-[#fdfbf7] shadow-lg border border-stone-200 p-8 mb-8 relative transform rotate-1 sticky top-4 z-20">
-            {/* Paper texture/lines */}
+        <div className="max-w-5xl mx-auto p-4 md:p-8 min-h-screen flex flex-col font-serif">
+        <div className="bg-[#fdfbf7] shadow-lg border border-stone-200 p-4 md:p-8 mb-4 md:mb-8 relative transform md:rotate-1 sticky top-0 z-50">
            <div className="absolute inset-0 bg-[linear-gradient(#e5e7eb_1px,transparent_1px)] bg-[size:100%_2rem] opacity-20 pointer-events-none"></div>
-           
            <div className="relative z-10">
-                <div className="flex justify-between items-end border-b-2 border-stone-800 pb-4 mb-6">
+                <div className="flex justify-between items-center border-b-2 border-stone-800 pb-2 mb-4">
                     <div>
                         <button 
                             onClick={() => setView('menu')}
-                            className="text-stone-500 hover:text-stone-800 transition-colors flex items-center gap-2 mb-2 text-sm font-bold uppercase tracking-wider"
+                            className="text-stone-500 hover:text-stone-800 transition-colors flex items-center gap-2 text-xs md:text-sm font-bold uppercase tracking-wider"
                         >
-                            <ArrowLeft size={16} /> Return to Index
+                            <ArrowLeft size={16} /> <span className="hidden md:inline">Return to Index</span><span className="md:hidden">Back</span>
                         </button>
-                        <h2 className="text-3xl font-black text-stone-900">{activeScript.title}</h2>
                     </div>
-                    <div className="text-right">
-                        <div className="text-stone-500 text-sm uppercase tracking-widest font-bold mb-1">Score</div>
-                        <div className="text-4xl font-bold text-stone-900 leading-none">{currentIndex} <span className="text-stone-400 text-2xl">/ {total}</span></div>
+                    
+                    <h2 className="hidden md:block text-2xl font-black text-stone-900">{activeScript.title}</h2>
+
+                    <div className="text-right flex items-center gap-4">
+                         <div className="flex md:hidden items-center gap-3 text-xs font-bold text-stone-500 uppercase tracking-widest">
+                            <span className={`${quizTimer < 10 ? 'text-red-700 animate-pulse' : ''}`}>{formatTime(quizTimer)}</span>
+                            <span>|</span>
+                            <span>{currentIndex} / {total}</span>
+                         </div>
+
+                        <div className="hidden md:block">
+                            <div className="text-stone-500 text-sm uppercase tracking-widest font-bold mb-1">Score</div>
+                            <div className="text-4xl font-bold text-stone-900 leading-none">{currentIndex} <span className="text-stone-400 text-2xl">/ {total}</span></div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                    {/* Timer Box */}
-                    <div className="border-2 border-stone-800 px-4 py-2 bg-stone-100 min-w-[120px] text-center shadow-[4px_4px_0px_0px_rgba(28,25,23,1)]">
+                <div className="flex flex-row gap-4 md:gap-8 items-center md:items-start">
+                    <div className="hidden md:block border-2 border-stone-800 px-4 py-2 bg-stone-100 min-w-[120px] text-center shadow-[4px_4px_0px_0px_rgba(28,25,23,1)]">
                         <div className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-1">Time Remaining</div>
                         <div className={`text-2xl font-bold font-mono ${quizTimer < 10 ? 'text-red-700 animate-pulse' : 'text-stone-800'}`}>
                             {formatTime(quizTimer)}
                         </div>
                     </div>
 
-                    {/* Input Field or Review Banner */}
-                    <div className="flex-1 w-full relative">
-                        {quizFinished && !showQuizModal ? (
-                            <div className="w-full bg-red-100 border border-red-200 py-3 px-4 text-red-800 font-bold text-center rounded">
-                                Reviewing Answers. Scroll to see what you missed.
+                    <div className="flex-1 w-full relative flex flex-row items-center gap-4">
+                        
+                        {!quizFinished && (
+                            <div className="text-5xl md:text-6xl md:hidden md:visible font-serif text-stone-900 font-bold min-w-[3rem] text-center leading-none">
+                                {activeScript.items[currentIndex].char}
                             </div>
-                        ) : (
-                            <>
-                                <label className="block text-sm font-bold text-stone-500 uppercase tracking-widest mb-2">
-                                    {quizFinished ? "Examination Complete" : `Identify Character #${currentIndex + 1}`}
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        ref={inputRef}
-                                        type="text"
-                                        value={quizInput}
-                                        onChange={handleQuizInput}
-                                        disabled={quizFinished}
-                                        placeholder={quizFinished ? "---" : "Type transliteration..."}
-                                        className="w-full bg-transparent border-b-2 border-stone-400 py-2 text-3xl font-bold text-stone-800 outline-none focus:border-stone-900 placeholder:text-stone-300 placeholder:italic placeholder:text-xl font-serif"
-                                    />
-                                    {!quizFinished && <Feather className="absolute right-0 top-1/2 -translate-y-1/2 text-stone-400" size={24} />}
-                                </div>
-                            </>
                         )}
+
+                        <div className="flex-1 relative">
+                            {quizFinished && !showQuizModal ? (
+                                <div className="w-full bg-red-100 border border-red-200 py-3 px-4 text-red-800 font-bold text-center rounded text-sm md:text-base">
+                                    Reviewing. Scroll down.
+                                </div>
+                            ) : (
+                                <>
+                                    <label className="hidden md:block text-sm font-bold text-stone-500 uppercase tracking-widest mb-2">
+                                        Identify Character #{currentIndex + 1}
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            ref={inputRef}
+                                            type="text"
+                                            value={quizInput}
+                                            onChange={handleQuizInput}
+                                            disabled={quizFinished}
+                                            placeholder={quizFinished ? "---" : "Type..."}
+                                            className="w-full bg-transparent border-b-2 border-stone-400 py-2 text-2xl md:text-3xl font-bold text-stone-800 outline-none focus:border-stone-900 placeholder:text-stone-300 placeholder:italic placeholder:text-xl font-serif"
+                                        />
+                                        {!quizFinished && <Feather className="absolute right-0 top-1/2 -translate-y-1/2 text-stone-400" size={20} />}
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {!quizFinished && (
-                        <button onClick={giveUp} className="text-xs font-bold text-stone-400 hover:text-red-700 uppercase tracking-wider mt-8">
+                        <button onClick={giveUp} className="text-xs font-bold text-stone-400 hover:text-red-700 uppercase tracking-wider mt-2 md:mt-8 whitespace-nowrap">
                             Forfeit
                         </button>
                     )}
                     {quizFinished && !showQuizModal && (
-                         <button onClick={() => setView('menu')} className="px-6 py-3 bg-stone-900 font-bold text-stone-50 hover:bg-stone-800 shadow-md">
-                            Finish Review
+                         <button onClick={() => setView('menu')} className="px-4 py-2 md:px-6 md:py-3 bg-stone-900 font-bold text-stone-50 hover:bg-stone-800 shadow-md text-sm md:text-base whitespace-nowrap">
+                            Finish
                          </button>
                     )}
                 </div>
            </div>
         </div>
 
-        {/* Results Modal */}
-        <Modal isOpen={showQuizModal && currentIndex < total} onClose={closeQuizModalForReview}>
+<Modal isOpen={showQuizModal && currentIndex < total} onClose={closeQuizModalForReview}>
             <div className="text-center font-serif">
                 <h3 className="text-3xl font-bold text-stone-900 mb-2">Time Expired</h3>
                 <div className="w-16 h-1 bg-stone-900 mx-auto mb-6"></div>
@@ -421,7 +434,6 @@ export default function ScriptSprint() {
             </div>
         </Modal>
 
-        {/* Victory Modal */}
         <Modal isOpen={showQuizModal && isPerfect} onClose={() => setView('menu')}>
              <div className="text-center font-serif">
                 <div className="inline-flex p-4 border-2 border-stone-800 rounded-full mb-6">
@@ -436,8 +448,7 @@ export default function ScriptSprint() {
             </div>
         </Modal>
 
-        {/* Grid Area - Sequential Layout */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pb-20">
           {activeScript.items.map((item, idx) => {
             const isRevealed = idx < currentIndex;
             const isCurrent = idx === currentIndex && !quizFinished;
@@ -449,13 +460,12 @@ export default function ScriptSprint() {
                 className={`
                   relative flex flex-col items-center justify-center p-6 border transition-all duration-300
                   ${isCurrent 
-                    ? 'animate-paper-flip bg-white border-2 border-stone-800 shadow-[4px_4px_0px_0px_rgba(28,25,23,0.2)] scale-105 z-10' 
+                    ? 'animate-paper-flip z-10 bg-white border-2 border-stone-800' 
                     : 'bg-[#fdfbf7] border-stone-200'}
                   ${isRevealed ? 'bg-stone-100' : ''}
                   ${isMissed ? 'bg-red-50 border-red-300 opacity-90' : ''}
                 `}
               >
-                {/* Number indicator for order */}
                 <div className="absolute top-2 left-2 text-[10px] font-bold text-stone-300">
                     {idx + 1}
                 </div>
@@ -465,7 +475,6 @@ export default function ScriptSprint() {
                     ${!isRevealed && !isCurrent && !isMissed ? 'blur-[2px] opacity-20' : ''}
                     ${isMissed ? 'text-red-900' : ''}
                 `}>
-                  {/* Always show char if revealed, current, or missed. Blur if future */}
                   {item.char}
                 </div>
                 
