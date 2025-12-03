@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Trophy, ArrowLeft, RefreshCw, CheckCircle, XCircle, Play, Shuffle, BookOpen, GraduationCap, Feather, Eye, Search } from 'lucide-react';
+import { Trophy, ArrowLeft, RefreshCw, CheckCircle, XCircle, Play, Shuffle, BookOpen, GraduationCap, Feather, Eye, Search, AlertCircle } from 'lucide-react';
 import { SCRIPTS } from './scripts';
 import './App.css'
 
@@ -78,6 +78,7 @@ export default function ScriptSprint() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [strictMode, setStrictMode] = useState(false);
 
   // --- Effects & Timers ---
 
@@ -156,7 +157,12 @@ export default function ScriptSprint() {
     // Strict sequential check
     const currentItem = activeScript.items[currentIndex];
 
-    if (currentItem.accepted.includes(normVal)) {
+    // Strict Mode check vs Standard check
+    const isCorrect = strictMode 
+        ? normalize(val) === normalize(currentItem.name)
+        : currentItem.accepted.includes(normVal);
+
+    if (isCorrect) {
       setQuizInput('');
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
@@ -199,7 +205,12 @@ export default function ScriptSprint() {
     if (!randomItem || (randomFeedback !== 'none')) return;
 
     const normVal = normalize(randomInput);
-    if (randomItem.item.accepted.includes(normVal)) {
+
+    const isCorrect = strictMode 
+        ? normVal === normalize(randomItem.item.name)
+        : randomItem.item.accepted.includes(normVal);
+
+    if (isCorrect) {
       setRandomScore(s => s + 1);
       setRandomStreak(s => s + 1);
       setRandomFeedback('correct');
@@ -216,9 +227,11 @@ export default function ScriptSprint() {
     setRandomInput(val);
     if (!randomItem || (randomFeedback !== 'none')) return;
     const normVal = normalize(val);
-    console.log("hi", normVal);
-    if (randomItem.item.accepted.includes(normVal)) {
-      console.log("hi2");
+    const isCorrect = strictMode 
+        ? normVal === normalize(randomItem.item.name)
+        : randomItem.item.accepted.includes(normVal);
+
+    if (isCorrect) {
       setRandomScore(s => s + 1);
       setRandomStreak(s => s + 1);
       setRandomFeedback('correct');
@@ -267,7 +280,7 @@ export default function ScriptSprint() {
         </div>
       </div>
 
-       <div className="max-w-md mx-auto mb-12 relative">
+      <div className="max-w-xl mx-auto mb-12 flex flex-col items-center gap-4">
         <div className="relative">
           <input 
             type="text" 
@@ -278,6 +291,14 @@ export default function ScriptSprint() {
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
         </div>
+
+        <button 
+            onClick={() => setStrictMode(!strictMode)}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm uppercase tracking-widest transition-all ${strictMode ? 'bg-red-600 text-white shadow-lg ring-2 ring-red-200' : 'bg-stone-200 text-stone-500 hover:bg-stone-300'}`}
+        >
+            {strictMode ? <CheckCircle size={18} /> : <XCircle size={18} />}
+            Strict Mode: {strictMode ? 'ON' : 'OFF'}
+        </button>
       </div>
 
 
@@ -362,6 +383,11 @@ export default function ScriptSprint() {
                         </button>
                     </div>
                     
+                    {strictMode && (
+                      <div className="flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                          <AlertCircle size={12} /> Strict Mode
+                      </div>
+                    )}
                     <h2 className="hidden md:block text-2xl font-black text-stone-900">{activeScript.title}</h2>
 
                     <div className="text-right flex items-center gap-4">
@@ -411,7 +437,7 @@ export default function ScriptSprint() {
                                             value={quizInput}
                                             onChange={handleQuizInput}
                                             disabled={quizFinished}
-                                            placeholder={quizFinished ? "---" : "Type..."}
+                                            placeholder={quizFinished ? "---" : strictMode ? "Exact name..." : "Type..."}
                                             className="w-full bg-transparent border-b-2 border-stone-400 py-2 text-2xl md:text-3xl font-bold text-stone-800 outline-none focus:border-stone-900 placeholder:text-stone-300 placeholder:italic placeholder:text-xl font-serif"
                                         />
                                         {!quizFinished && <Feather className="absolute right-0 top-1/2 -translate-y-1/2 text-stone-400" size={20} />}
@@ -526,7 +552,11 @@ export default function ScriptSprint() {
             <button onClick={() => setView('menu')} className="text-stone-500 hover:text-stone-800 font-bold flex items-center gap-2 uppercase tracking-widest text-xs">
               <ArrowLeft size={14} /> Return
             </button>
-            <div className="flex gap-6">
+            <div className="flex gap-6 items-center">
+                  {strictMode && (
+                 <div className="flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider mr-2">
+                     <AlertCircle size={12} /> Strict
+                 </div> )}
                <div className="text-center">
                  <div className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Streak</div>
                  <div className="text-2xl font-black text-stone-800">{randomStreak}</div>
@@ -599,7 +629,7 @@ export default function ScriptSprint() {
                         onChange={handleRandomInput}
                         disabled={randomFeedback !== 'none'}
                         className="w-full bg-transparent border-b-2 border-dashed border-stone-400 text-center text-3xl font-serif font-bold text-stone-800 py-2 outline-none focus:border-stone-900 focus:border-solid transition-all placeholder:text-stone-300 placeholder:italic placeholder:text-xl placeholder:font-normal"
-                        placeholder="write answer here"
+                        placeholder={strictMode ? "Exact name..." : "write answer here"}
                         autoFocus
                         />
                     </form>
