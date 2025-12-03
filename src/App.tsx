@@ -21,7 +21,7 @@ type ScriptData = {
 
 // --- Utility Functions ---
 
-const normalize = (s: string) => s.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+const normalize = (s: string) => s.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '');
 
 const getRandomItem = (items: ScriptItem[], count: number = 1) => {
   const shuffled = [...items].sort(() => 0.5 - Math.random());
@@ -203,10 +203,26 @@ export default function ScriptSprint() {
       setRandomScore(s => s + 1);
       setRandomStreak(s => s + 1);
       setRandomFeedback('correct');
-      setTimeout(nextRandomItem, 800); 
+      setTimeout(nextRandomItem, 800);
     } else {
       setRandomStreak(0);
       setRandomFeedback('gameover');
+    }
+  };
+
+  
+  const handleRandomInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setRandomInput(val);
+    if (!randomItem || (randomFeedback !== 'none')) return;
+    const normVal = normalize(val);
+    console.log("hi", normVal);
+    if (randomItem.item.accepted.includes(normVal)) {
+      console.log("hi2");
+      setRandomScore(s => s + 1);
+      setRandomStreak(s => s + 1);
+      setRandomFeedback('correct');
+      setTimeout(nextRandomItem, 800); 
     }
   };
 
@@ -428,7 +444,7 @@ export default function ScriptSprint() {
                     <button onClick={closeQuizModalForReview} className="px-6 py-3 border-2 border-stone-300 font-bold text-stone-600 hover:bg-stone-100 flex items-center gap-2">
                          <Eye size={18} /> Review Answers
                     </button>
-                    <button onClick={() => setView('menu')} className="px-6 py-3 border-2 border-stone-300 font-bold text-stone-600 hover:bg-stone-100">Index</button>
+                    <button onClick={() => setView('menu')} className="px-6 py-3 border-2 border-stone-300 font-bold text-stone-600 hover:bg-stone-100">Home</button>
                     <button onClick={() => startQuiz(activeScript)} className="px-6 py-3 bg-stone-900 font-bold text-stone-50 hover:bg-stone-800 shadow-md">Retake Exam</button>
                 </div>
             </div>
@@ -442,7 +458,7 @@ export default function ScriptSprint() {
                 <h3 className="text-3xl font-bold text-stone-900 mb-2">Distinction Achieved</h3>
                 <p className="text-stone-600 mb-8 italic">Perfect marks recorded for this session.</p>
                 <div className="flex gap-4 justify-center">
-                    <button onClick={() => setView('menu')} className="px-6 py-3 border-2 border-stone-300 font-bold text-stone-600 hover:bg-stone-100">Index</button>
+                    <button onClick={() => setView('menu')} className="px-6 py-3 border-2 border-stone-300 font-bold text-stone-600 hover:bg-stone-100">Home</button>
                     <button onClick={() => startQuiz(activeScript)} className="px-6 py-3 bg-stone-900 font-bold text-stone-50 hover:bg-stone-800 shadow-md">Restart</button>
                 </div>
             </div>
@@ -580,7 +596,7 @@ export default function ScriptSprint() {
                         ref={inputRef}
                         type="text"
                         value={randomInput}
-                        onChange={(e) => setRandomInput(e.target.value)}
+                        onChange={handleRandomInput}
                         disabled={randomFeedback !== 'none'}
                         className="w-full bg-transparent border-b-2 border-dashed border-stone-400 text-center text-3xl font-serif font-bold text-stone-800 py-2 outline-none focus:border-stone-900 focus:border-solid transition-all placeholder:text-stone-300 placeholder:italic placeholder:text-xl placeholder:font-normal"
                         placeholder="write answer here"
