@@ -328,7 +328,7 @@ export default function ScriptSprint() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Chaos Mode Card */}
-        {searchQuery === '' &&(<button 
+        {searchQuery === '' && !showCompleted &&(<button 
           onClick={startRandomMode}
           className="cursor-pointer group relative rounded-sm border-2 border-stone-800 bg-stone-800 p-8 text-left shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl overflow-hidden"
         >
