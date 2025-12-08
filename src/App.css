@@ -5,9 +5,42 @@
     40% { transform: scale(1.05) rotate(-2deg); box-shadow: 12px 12px 0 rgba(28,25,23,0.15); }
     100% { transform: scale(1.02) rotate(0deg); box-shadow: 6px 6px 0 rgba(28,25,23,0.2); }
 }
+
+/* New Animations for Chaos/Card Modes */
+@keyframes cardSlideIn {
+    0% { opacity: 0; transform: translateX(100px) rotate(10deg); }
+    100% { opacity: 1; transform: translateX(0) rotate(0deg); }
+}
+
+@keyframes cardSlideOut {
+    0% { opacity: 1; transform: translateX(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateX(-100px) rotate(-10deg); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
+    40%, 60% { transform: translate3d(2px, 0, 0); }
+}
+
 .animate-paper-flip {
     animation: paperFlip 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+.animate-card-in {
+    animation: cardSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-card-out {
+    animation: cardSlideOut 0.4s ease-in forwards;
+}
+
+.animate-shake {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
 .card-hover:hover {
     animation: paperFlip 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
