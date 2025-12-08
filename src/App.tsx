@@ -29,14 +29,37 @@ const getRandomItem = (items: ScriptItem[], count: number = 1) => {
 };
 
 // --- Components ---
-
-const Modal = ({ children, isOpen, onClose }: { children: React.ReactNode, isOpen: boolean, onClose: () => void }) => {
+// Updated Modal Component to support the Gold/Dark variant
+const Modal = ({ 
+  children, 
+  isOpen, 
+  onClose, 
+  variant = 'default' 
+}: { 
+  children: React.ReactNode, 
+  isOpen: boolean, 
+  onClose: () => void,
+  variant?: 'default' | 'gold' 
+}) => {
   if (!isOpen) return null;
+
+  // Dynamic classes based on variant
+  const containerClasses = variant === 'gold' 
+    ? "bg-stone-950 border-2 border-amber-500/50 shadow-[0_0_50px_rgba(245,158,11,0.15)] text-stone-100"
+    : "bg-[#fdfbf7] border-2 border-stone-300 shadow-xl text-stone-900";
+
+  const closeButtonClasses = variant === 'gold'
+    ? "text-stone-600 hover:text-amber-400"
+    : "text-stone-400 hover:text-stone-700";
+
   return (
-    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-[#fdfbf7] rounded border-2 border-stone-300 shadow-xl max-w-md w-full p-8 relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-stone-800 opacity-10"></div>
-        <button onClick={onClose} className="absolute top-4 right-4 text-stone-400 hover:text-stone-700">
+    <div className="fixed inset-0 bg-stone-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className={`${containerClasses} rounded-sm max-w-md w-full p-8 relative overflow-hidden transition-all`}>
+        
+        {/* Default top decoration */}
+        {variant === 'default' && <div className="absolute top-0 left-0 w-full h-1 bg-stone-800 opacity-10"></div>}
+        
+        <button onClick={onClose} className={`absolute top-4 right-4 z-50 transition-colors ${closeButtonClasses}`}>
           <XCircle size={24} />
         </button>
         {children}
@@ -44,6 +67,7 @@ const Modal = ({ children, isOpen, onClose }: { children: React.ReactNode, isOpe
     </div>
   );
 };
+
 
 export default function ScriptSprint() {
   const [view, setView] = useState<'menu' | 'quiz' | 'random'>('menu');
@@ -745,20 +769,53 @@ export default function ScriptSprint() {
                 </div>
             </div>
         </Modal>
-        
-        {/* <Modal isOpen={showQuizModal && isPerfect && !isPracticeMode && strictMode} onClose={() => setView('menu')}>
-             <div className="text-center font-serif">
-                <div className="inline-flex p-4 border-2 border-stone-800 rounded-full mb-6">
-                    <Crown size={32} className="text-amber-900/50" />
+{/* --- Perfection Achieved Modal (Gold Style) --- */}
+        <Modal 
+          isOpen={showQuizModal && isPerfect && !isPracticeMode && strictMode} 
+          onClose={() => setView('menu')}
+          variant="gold" // <--- Trigger the dark/gold styling
+        >
+             {/* Background Effects (Absolute, behind content) */}
+             <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" 
+                  style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #f59e0b 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+             </div>
+             <div className="absolute -right-12 -bottom-12 text-amber-500/10 transform rotate-12 pointer-events-none">
+                <Crown size={180} />
+             </div>
+             <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-amber-500/15 to-transparent pointer-events-none"></div>
+
+             {/* Content */}
+             <div className="text-center font-serif relative z-10">
+                <div className="inline-flex p-4 border-2 border-amber-500/50 rounded-full mb-6 bg-stone-900 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                    <Crown size={32} className="text-amber-400 animate-pulse" />
                 </div>
-                <h3 className="text-3xl font-bold text-stone-900 mb-2">Perfection Achieved</h3>
-                <p className="text-stone-600 mb-8 italic">Welcome to the greats.</p>
-                <div className="flex gap-4 justify-center">
-                    <button onClick={() => setView('menu')} className="px-6 py-3 border-2 border-stone-300 font-bold text-stone-600 hover:bg-stone-100">Home</button>
-                    <button onClick={() => startQuiz(activeScript)} className="px-6 py-3 bg-stone-900 font-bold text-stone-50 hover:bg-stone-800 shadow-md">Restart</button>
+                
+                <h3 className="text-4xl font-black text-amber-400 shimmer-text mb-2 tracking-tight">
+                  Perfection Achieved
+                </h3>
+                
+                <div className="h-1 w-16 bg-amber-500 mx-auto mb-4 rounded-full"></div>
+                
+                <p className="text-stone-400 mb-8 italic text-lg">
+                  "Welcome to the greats."
+                </p>
+                
+                <div className="flex gap-4 justify-center flex-col sm:flex-row">
+                    <button 
+                      onClick={() => setView('menu')} 
+                      className="px-6 py-3 border border-stone-700 text-stone-400 font-bold hover:text-stone-200 hover:border-stone-500 hover:bg-stone-800 transition-all uppercase tracking-widest text-xs"
+                    >
+                      Home
+                    </button>
+                    <button 
+                      onClick={() => startQuiz(activeScript)} 
+                      className="px-6 py-3 bg-amber-500 text-stone-950 font-black hover:bg-amber-400 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
+                    >
+                      <RefreshCw size={14}/> Restart
+                    </button>
                 </div>
             </div>
-        </Modal> */}
+        </Modal>
 
 
       </div>
